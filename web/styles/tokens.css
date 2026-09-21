@@ -38,7 +38,7 @@
   --trait:        rgba(255, 255, 255, 0.07);
   --trait-fort:   rgba(255, 255, 255, 0.13);
   --trait-quartz: rgba(139, 124, 240, 0.35);
-  --facette:      rgba(255, 255, 255, 0.05);  /* lisere haut des panneaux */
+  --facette:      rgba(255, 255, 255, 0.05);  /* liseré haut des panneaux */
   --voile:        rgba(5, 5, 9, 0.72);
 
   /* --- Série de données (validée : bande de clarté, chroma, CVD, contraste) */

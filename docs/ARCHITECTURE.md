@@ -6,7 +6,7 @@
    micro
      │  MediaRecorder, tranches de 5 s
      ▼
-  IndexedDB ────────► le coffre : survit à un plantage d'onglet
+  IndexedDB ────────────► le coffre : survit à un plantage d'onglet
      │
      │  à l'arrêt
      ▼
