@@ -206,7 +206,7 @@ export function chronologie(phases, markers = [], duree = 0) {
     const meta = ETAT_PHASE[phase.etat] ?? ETAT_PHASE.fait;
 
     const groupe = svgEl('g');
-    // Aplat teinté + liferé net : sur fond noir, un aplat saturé plein écrase
+    // Aplat teinté + liseré net : sur fond noir, un aplat saturé plein écrase
     // tout le reste. Le liseré porte la teinte, l'aplat porte la surface.
     groupe.append(svgEl('rect', {
       x: x0, y: Y_BANDE, width: largeur, height: H_BANDE, rx: 4,
