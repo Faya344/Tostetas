@@ -62,6 +62,11 @@ Le web a tout de même sa **veille** : écran noir, horodatage à peine lisible,
 et toute la surface devient le bouton « point clé ». Utile quand le téléphone
 reste posé sur une table, écran allumé mais sombre.
 
+**Un seul appareil, sans poste séparé** est possible via Termux — le CLI Claude
+tourne alors sur le téléphone lui-même, dans un vrai bac à sable Linux. C'est
+expérimental : la mécanique est prête, seule l'authentification `claude login`
+dans ce bac à sable reste à vérifier sur un appareil réel.
+
 Tout est dans [docs/ANDROID.md](docs/ANDROID.md).
 
 ---

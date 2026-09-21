@@ -49,6 +49,9 @@ private val Encre3 = Color(0xFF71708A)
 private val Critique = Color(0xFFD03B3B)
 private val Nebuleuse = Color(0xFF5FD4C4)
 
+/** Adresse à utiliser quand Plodo tourne dans Termux, sur ce même téléphone. */
+private const val LOCAL_TERMUX = "http://127.0.0.1:7331"
+
 class MainActivity : ComponentActivity() {
 
     private val demandeDroits = registerForActivityResult(
@@ -175,6 +178,17 @@ private fun Ecran(reglages: Reglages) {
                         "Lancez Plodo sur l'ordinateur avec PLODO_HOST=0.0.0.0 pour qu'il accepte le réseau local.",
                         color = Encre3, fontSize = 12.sp, modifier = Modifier.padding(top = 6.dp)
                     )
+                    Row(
+                        Modifier.fillMaxWidth().padding(top = 10.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        // Ce préréglage n'a de sens que si Plodo tourne aussi sur ce
+                        // téléphone, dans Termux : voir docs/ANDROID.md « Autonomie complète ».
+                        // Sans ça, 127.0.0.1 pointe sur rien et l'envoi échouera proprement.
+                        TextButton(onClick = { poste = LOCAL_TERMUX; reglages.poste = LOCAL_TERMUX }) {
+                            Text("Ce téléphone (Termux)", color = QuartzClair, fontSize = 12.sp)
+                        }
+                    }
                 }
 
                 Panneau("À envoyer", "${enAttente.size}") {

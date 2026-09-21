@@ -288,7 +288,41 @@ function rendreVisite(visite) {
   const blocs = [];
 
   /* En-tête */
-  const actions = el('div', { class: 'rang rang--fin' }, [
+  // Une visite qui arrive de l'application Android n'a que l'audio : ni
+  // transcription, ni synthèse. C'est le seul cas où ce bouton apparaît —
+  // sans lui, une visite synchronisée depuis le téléphone reste bloquée,
+  // « Synthétiser » restant grisé faute de transcript à lire.
+  const actionsListe = [];
+  if (visite.audio && !visite.transcript?.segments?.length) {
+    actionsListe.push(boutonAction('Transcrire (Whisper local)', 'bouton--fantome', async (bouton) => {
+      bouton.disabled = true;
+      const texteInitial = bouton.textContent;
+      try {
+        bouton.textContent = 'Récupération de l\'audio…';
+        const reponse = await fetch(visite.audio.url);
+        if (!reponse.ok) throw new Error(`Audio illisible (${reponse.status}).`);
+        const blob = await reponse.blob();
+
+        const { segments } = await transcrireAvecWhisper(blob, {
+          modele: reglages.modele,
+          langue: reglages.langue,
+          onEtat: ({ message }) => { if (message) bouton.textContent = message; }
+        });
+        if (!segments.length) throw new Error('Aucune parole détectée dans cet enregistrement.');
+
+        await api.enregistrerTranscription(visite.id, {
+          segments, moteur: `whisper:${reglages.modele}`, langue: reglages.langue
+        });
+        toast('Transcription terminée. Vous pouvez lancer la synthèse.', 'ok');
+        await ouvrirVisite(visite.id);
+      } catch (err) {
+        toast(`Transcription impossible : ${err.message}`, 'ko', 9000);
+        bouton.disabled = false;
+        bouton.textContent = texteInitial;
+      }
+    }));
+  }
+  actionsListe.push(
     boutonAction('Synthétiser', 'bouton--quartz', async (bouton) => {
       bouton.disabled = true;
       bouton.textContent = 'Claude lit la visite…';
@@ -313,7 +347,8 @@ function rendreVisite(visite) {
       await rafraichirListe();
       aller('studio');
     })
-  ]);
+  );
+  const actions = el('div', { class: 'rang rang--fin' }, actionsListe);
 
   blocs.push(el('header', { class: 'entete' }, [
     el('div', { class: 'entete__sur', text: [visite.site, visite.date].filter(Boolean).join(' · ') || 'Visite' }),
@@ -349,7 +384,9 @@ function rendreVisite(visite) {
     blocs.push(el('div', { class: 'panneau' }, el('div', { class: 'vide' },
       el('span', { text: visite.transcript?.segments?.length
         ? 'Transcription prête. Lancez la synthèse pour obtenir le compte rendu et les graphiques.'
-        : 'Pas encore de transcription pour cette visite.' }))));
+        : visite.audio
+          ? 'Pas encore de transcription. Cliquez sur « Transcrire » ci-dessus — le calcul se fait ici, dans ce navigateur.'
+          : 'Pas encore de transcription pour cette visite.' }))));
     if (visite.transcript?.segments?.length) blocs.push(blocVerbatim(visite));
     return blocs;
   }

@@ -143,6 +143,81 @@ fichier sous sa vraie extension.
 
 ---
 
+---
+
+## Autonomie complète, un seul appareil (expérimental)
+
+**Question légitime : pourquoi pas tout sur le téléphone ?** Parce que Claude
+Code — le pont vers votre abonnement, celui qui évite tout jeton facturé — est
+un outil en ligne de commande écrit pour un système de type Linux. Il n'existe
+pas de version qui se compile à l'intérieur d'un APK. Ce n'est pas un manque
+d'effort, c'est que l'APK et le CLI ne sont pas la même catégorie de logiciel.
+
+Il y a malgré tout un moyen d'avoir les deux sur le même appareil :
+**[Termux](https://f-droid.org/packages/com.termux/)**, un émulateur de
+terminal Linux pour Android, sans root, disponible sur F-Droid (plus sur le
+Play Store depuis 2020 — c'est la version F-Droid qu'il faut). Termux fournit
+un vrai Node.js. Si `claude` s'y installe et s'y authentifie normalement, alors
+Plodo peut y tourner exactement comme sur un ordinateur — parce que c'est le
+même code, au même serveur près, qui change simplement d'adresse.
+
+### Ce qui est vérifié, et ce qui ne l'est pas
+
+Vérifié ici même : le serveur Plodo (`server/index.mjs`) n'a aucune dépendance
+et tourne sur n'importe quel Node 20+, quel que soit l'hôte.
+
+**Non vérifié, faute d'un appareil Android sous la main : que `claude login`
+se déroule normalement dans le bac à sable de Termux.** C'est la seule vraie
+inconnue de ce chemin — tout le reste n'est que la réutilisation de pièces déjà
+testées. Le script ci-dessous prépare tout jusqu'à cette étape ; à vous de la
+franchir une fois et de constater si ça passe.
+
+### Installer
+
+Dans Termux :
+
+```bash
+curl -sL https://raw.githubusercontent.com/Faya344/Tostetas/claude/plaud-clone-rag-design-hjmwb3/android/termux/installer.sh | bash
+```
+
+Puis, à la main :
+
+```bash
+claude login                                    # une fois, lie l'abonnement
+cd ~/plodo && PLODO_HOST=127.0.0.1 node server/index.mjs
+```
+
+Dans Plodo : **Réglages → Poste de travail → « Ce téléphone (Termux) »**. Le
+reste ne change pas — envoyer une visite, la voir apparaître, la transcrire,
+la synthétiser, tout se passe maintenant sans jamais quitter l'appareil.
+
+### Ce qui tiendra, ce qui demande un essai
+
+| Point | État |
+|---|---|
+| Le serveur Plodo dans Termux | Le même code que sur un poste — aucune raison de se comporter autrement. |
+| `claude login` dans le bac à sable Termux | **À tester sur votre appareil.** Dites-moi ce que ça donne. |
+| Le service Android + le serveur Termux, en même temps | Deux processus indépendants ; le premier enregistre, le second réfléchit une fois la visite envoyée. Pas de conflit attendu, la synchronisation passe par le réseau comme avec un poste distant. |
+| Redémarrage automatique | Nécessite l'app **Termux:Boot** (F-Droid, à installer en plus) ; sinon il faut relancer le serveur à la main après chaque redémarrage du téléphone. |
+| Tenue en arrière-plan de Termux lui-même | Exclure aussi *Termux* de l'optimisation de batterie, en plus de Plodo — deux applications, deux réglages. |
+
+### Le repli, si ça ne passe pas
+
+Si `claude login` échoue dans Termux (limite plausible : certaines briques
+natives d'un paquet npm supposent un système standard, pas le bac à sable
+Termux), rien n'est perdu : gardez l'adresse d'un poste classique dans
+Réglages, et le reste de l'application fonctionne à l'identique. Dites-le-moi
+si vous testez — je pourrai adapter le script selon ce qui bloque réellement.
+
+### Ce qui ne changera pas de nature
+
+Même en Termux, la transcription Whisper tourne toujours dans un *navigateur*
+(`server/index.mjs` sert des pages web, il ne transcrit rien lui-même). Ouvrez
+donc `http://127.0.0.1:7331` dans le navigateur du téléphone pour lancer une
+transcription — l'application Android, elle, ne fait qu'enregistrer et
+envoyer. C'est un aller-retour de plus, mais toujours sur le même appareil,
+sans réseau externe.
+
 ## Ce que l'application ne fait pas
 
 - **Pas de transcription sur le téléphone.** Whisper sur mobile est possible

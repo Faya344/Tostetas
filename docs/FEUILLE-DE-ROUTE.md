@@ -8,6 +8,11 @@ fonctions publiées ont servi de repère.
 (capture écran verrouillé, point clé depuis la notification, la tuile des
 réglages rapides ou le casque). Voir [ANDROID.md](ANDROID.md).*
 
+*En cours d'évaluation : faire tourner Plodo dans Termux, sur le téléphone
+lui-même, pour une autonomie complète sans poste séparé. Le serveur est prêt ;
+reste à vérifier que `claude login` s'y déroule normalement — la seule inconnue
+réelle. Voir [ANDROID.md § Autonomie complète](ANDROID.md#autonomie-complète-un-seul-appareil-expérimental).*
+
 ---
 
 ## À faire en premier
@@ -140,6 +145,7 @@ libellé.
 | Raccourci système Android | Une tuile « Démarrer une visite », en plus de celle du point clé. |
 | Envoi automatique au retour | Pousser les visites en attente dès que le téléphone retrouve le Wi-Fi du bureau. |
 | Version iOS | Le mode discrétion y est plus contraint : iOS coupe la capture en arrière-plan plus tôt qu'Android. |
+| Dictée embarquée (sans réseau ni poste) | `SpeechRecognizer` d'Android pourrait produire un transcript pendant l'enregistrement, comme la « Dictée » du navigateur. Non tenté : rien ne garantit qu'il partage le micro proprement avec `MediaRecorder` en même temps — à vérifier sur un appareil avant de le construire, plutôt que de livrer un conflit silencieux. |
 
 ---
 
