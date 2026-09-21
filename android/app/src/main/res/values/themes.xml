@@ -1,0 +1,7 @@
+<resources>
+    <style name="Theme.Plodo" parent="android:Theme.Material.NoActionBar">
+        <item name="android:statusBarColor">#050509</item>
+        <item name="android:navigationBarColor">#050509</item>
+        <item name="android:windowBackground">#050509</item>
+    </style>
+</resources>

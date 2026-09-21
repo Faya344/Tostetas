@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Le poste de travail est sur le réseau local, en HTTP simple : il n'y a pas de
+  certificat à présenter pour un 192.168.x.x. Rien ne sort du réseau local, donc
+  le texte clair n'expose rien de plus que le câble lui-même.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * NOIRA — serveur local.
+ * Plodo — serveur local.
  *
  * Écoute sur 127.0.0.1 uniquement. Rien ne sort de la machine : l'audio, la
  * transcription et l'index restent sur le disque, et le seul appel réseau
@@ -11,7 +11,10 @@ import http from 'node:http';
 import path from 'node:path';
 import { promises as fs, createReadStream } from 'node:fs';
 
-import { ROOT, ensureDirs, loadVisite, loadAll, saveVisite, visiteDir, visiteExiste, writeJson, newId } from './store.mjs';
+import {
+  ROOT, ensureDirs, loadVisite, loadAll, saveVisite, visiteDir, visiteExiste,
+  writeJson, newId, trouverAudio, FORMATS_AUDIO, TYPES_AUDIO
+} from './store.mjs';
 import { sendJson, sendText, readBody, readJsonBody, serveStatic } from './http.mjs';
 import { retrieve, formatContext, buildIndex, getIndex, invalidate } from './rag/index.mjs';
 import { genererSynthese } from './synthese.mjs';
@@ -20,8 +23,8 @@ import { SYSTEM_QA, buildQaPrompt } from './claude/prompts.mjs';
 import { exportMarkdown } from './export.mjs';
 
 const WEB_DIR = path.join(ROOT, 'web');
-const PORT = Number(process.env.NOIRA_PORT || 7331);
-const HOST = process.env.NOIRA_HOST || '127.0.0.1';
+const PORT = Number(process.env.PLODO_PORT || 7331);
+const HOST = process.env.PLODO_HOST || '127.0.0.1';
 
 const routes = [];
 const route = (method, pattern, handler) => routes.push({ method, pattern, handler });
@@ -91,13 +94,25 @@ route('PUT', /^\/api\/visites\/([\w-]+)\/audio$/, async (req, res, [id]) => {
   if (!(await visiteExiste(id))) return sendJson(res, 404, { erreur: 'Visite inconnue' });
   const buffer = await readBody(req);
   if (!buffer.length) return sendJson(res, 400, { erreur: 'Aucun audio reçu' });
+
+  const type = String(req.headers['content-type'] || '').split(';')[0].trim().toLowerCase();
+  const ext = FORMATS_AUDIO[type];
+  if (!ext) return sendJson(res, 415, { erreur: `Format audio non géré : ${type || 'non précisé'}` });
+
+  // Une visite ne porte qu'un enregistrement : un nouvel envoi remplace
+  // l'ancien, même si le format a changé entre-temps.
+  const existant = await trouverAudio(id);
+  if (existant) await fs.rm(existant, { force: true });
+
   await fs.mkdir(visiteDir(id), { recursive: true });
-  await fs.writeFile(path.join(visiteDir(id), 'audio.webm'), buffer);
-  sendJson(res, 200, { octets: buffer.length });
+  await fs.writeFile(path.join(visiteDir(id), `audio.${ext}`), buffer);
+  sendJson(res, 200, { octets: buffer.length, format: ext });
 });
 
 route('GET', /^\/api\/visites\/([\w-]+)\/audio$/, async (req, res, [id]) => {
-  const file = path.join(visiteDir(id), 'audio.webm');
+  const file = await trouverAudio(id);
+  if (!file) return sendText(res, 404, 'Pas d\'audio pour cette visite');
+  const type = TYPES_AUDIO[path.extname(file).slice(1)] ?? 'application/octet-stream';
   try {
     const stat = await fs.stat(file);
     const range = req.headers.range?.match(/bytes=(\d*)-(\d*)/);
@@ -106,14 +121,14 @@ route('GET', /^\/api\/visites\/([\w-]+)\/audio$/, async (req, res, [id]) => {
       const start = range[1] ? Number(range[1]) : 0;
       const end = range[2] ? Number(range[2]) : stat.size - 1;
       res.writeHead(206, {
-        'content-type': 'audio/webm',
+        'content-type': type,
         'content-range': `bytes ${start}-${end}/${stat.size}`,
         'accept-ranges': 'bytes',
         'content-length': end - start + 1
       });
       return createReadStream(file, { start, end }).pipe(res);
     }
-    res.writeHead(200, { 'content-type': 'audio/webm', 'content-length': stat.size, 'accept-ranges': 'bytes' });
+    res.writeHead(200, { 'content-type': type, 'content-length': stat.size, 'accept-ranges': 'bytes' });
     createReadStream(file).pipe(res);
   } catch {
     sendText(res, 404, 'Pas d\'audio pour cette visite');
@@ -235,7 +250,7 @@ const server = http.createServer(async (req, res) => {
 await ensureDirs();
 server.listen(PORT, HOST, async () => {
   const claude = await checkAvailability();
-  console.log(`\n  NOIRA — http://${HOST}:${PORT}`);
+  console.log(`\n  Plodo — http://${HOST}:${PORT}`);
   console.log(`  Claude Code : ${claude.ok ? `détecté (${claude.version})` : 'absent — mode corbeille'}`);
   console.log(`  Données     : ${path.join(ROOT, 'data')}\n`);
 });

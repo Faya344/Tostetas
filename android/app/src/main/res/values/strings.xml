@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Plodo</string>
+    <string name="point_cle">Point clé</string>
+    <string name="canal_enregistrement">Enregistrement</string>
+</resources>

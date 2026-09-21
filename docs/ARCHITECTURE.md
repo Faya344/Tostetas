@@ -1,5 +1,27 @@
 # Architecture
 
+## Deux moitiés
+
+```
+  TÉLÉPHONE (APK)                      POSTE (Node + Claude Code)
+  ───────────────                      ──────────────────────────
+  service au premier plan              transcription Whisper
+  micro + points clés        ──LAN──►  index RAG
+  écran verrouillé                     synthèse par Claude
+                                       graphiques
+```
+
+Le partage n'est pas arbitraire : Claude Code tourne sur un ordinateur, avec
+l'abonnement de l'utilisateur. C'est ce qui permet de ne rien payer de plus, et
+c'est ce qui fixe la frontière. Le téléphone fait ce qu'un téléphone fait bien —
+être dans une poche, avec un micro et un bouton.
+
+Les deux moitiés sont indépendantes : le navigateur du poste sait aussi
+enregistrer, et un dossier de visite copié à la main depuis le téléphone donne
+exactement le même résultat qu'un envoi réseau.
+
+Le détail de la partie Android est dans [ANDROID.md](ANDROID.md).
+
 ## Le trajet complet
 
 ```
@@ -10,7 +32,7 @@
      │
      │  à l'arrêt
      ▼
-  PUT /api/visites/:id/audio ──► data/visites/<id>/audio.webm
+  PUT /api/visites/:id/audio ──► data/visites/<id>/audio.<ext>
      │
      ▼
   Whisper (navigateur, WebGPU ou WASM)
@@ -91,6 +113,27 @@ Les couleurs de série viennent d'une palette validée pour le daltonisme et le
 contraste sur fond `#0a0a12`. Elles sont **séparées** des couleurs de marque :
 le violet quartz habille l'interface et ne signifie jamais une valeur. Chaque
 figure expose sa table de données — la couleur n'est jamais le seul canal.
+
+## Le mode discrétion, et pourquoi il a fallu une application
+
+Un navigateur n'est pas maître de son sort. Android suspend un onglet dont
+l'écran est éteint : les minuteurs ralentissent, puis la capture cale. Aucune
+astuce web ne contourne durablement cette règle — c'est le système qui décide.
+
+Android offre en revanche un contrat explicite : un **service au premier plan de
+type `microphone`** ne sera pas interrompu, en échange d'une notification
+visible. `ServiceEnregistrement` prend ce contrat, y ajoute un verrou processeur
+partiel pour que le CPU ne s'endorme pas, et publie une `MediaSession` pour
+capter les touches du casque écran éteint.
+
+La notification n'est donc pas un détail d'interface : c'est la contrepartie du
+droit de tourner en fond. D'où le soin apporté à ce qu'elle dit — en mode
+discrétion, elle n'affiche ni le titre de la visite ni la durée.
+
+Le web garde une **veille** : écran noir, horodatage à peine lisible, toute la
+surface devient le bouton « point clé ». Elle règle le problème de l'écran
+allumé, pas celui de l'écran éteint, et la documentation le dit plutôt que de
+le laisser découvrir en visite.
 
 ## Le fichier de jetons
 

@@ -4,7 +4,7 @@
  * Le modèle est téléchargé une fois depuis le CDN Hugging Face puis mis en
  * cache par le navigateur. Ensuite, tout se passe sur la machine : aucun audio
  * ne part sur un serveur, aucun jeton n'est facturé. C'est le compromis central
- * de NOIRA — un premier chargement un peu long contre une gratuité durable.
+ * de Plodo — un premier chargement un peu long contre une gratuité durable.
  */
 
 let transcripteur = null;

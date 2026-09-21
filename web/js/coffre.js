@@ -7,7 +7,7 @@
  * veille. Ce qui est dans le coffre est récupérable au prochain démarrage.
  */
 
-const BASE = 'noira';
+const BASE = 'plodo';
 const MAGASIN = 'morceaux';
 
 let connexion = null;

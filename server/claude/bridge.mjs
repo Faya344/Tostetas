@@ -14,9 +14,9 @@ import path from 'node:path';
 import { promises as fs } from 'node:fs';
 import { OUTBOX_DIR } from '../store.mjs';
 
-const BIN = process.env.NOIRA_CLAUDE_BIN || 'claude';
-const MODEL = process.env.NOIRA_CLAUDE_MODEL || 'sonnet';
-const TIMEOUT_MS = Number(process.env.NOIRA_CLAUDE_TIMEOUT_MS || 10 * 60 * 1000);
+const BIN = process.env.PLODO_CLAUDE_BIN || 'claude';
+const MODEL = process.env.PLODO_CLAUDE_MODEL || 'sonnet';
+const TIMEOUT_MS = Number(process.env.PLODO_CLAUDE_TIMEOUT_MS || 10 * 60 * 1000);
 
 export class ClaudeUnavailable extends Error {
   constructor(message, { outbox = null } = {}) {

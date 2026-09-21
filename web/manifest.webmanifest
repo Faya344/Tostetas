@@ -1,6 +1,6 @@
 {
-  "name": "NOIRA — Carnet de visites",
-  "short_name": "NOIRA",
+  "name": "Plodo — Carnet de visites",
+  "short_name": "Plodo",
   "description": "Enregistrez vos visites techniques, laissez la synthèse s'écrire.",
   "start_url": "/",
   "display": "standalone",

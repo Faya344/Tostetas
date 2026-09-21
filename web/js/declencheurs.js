@@ -27,12 +27,47 @@ const TOUCHES_MARQUEUR = new Set([
 
 const TOUCHES_BASCULE = new Set(['Space', 'PageUp', 'ArrowLeft', 'ArrowUp']);
 
+/**
+ * Une piste muette, fabriquée à la volée.
+ *
+ * Android ne fait apparaître les commandes média sur l'écran verrouillé que si
+ * une lecture est réellement en cours. Les échantillons valent zéro : rien ne
+ * s'entend, mais la session média existe, et avec elle le bouton « piste
+ * suivante » qui pose un point clé sans déverrouiller.
+ */
+function pisteMuette(secondes = 2) {
+  const taux = 8000;
+  const echantillons = taux * secondes;
+  const tampon = new ArrayBuffer(44 + echantillons * 2);
+  const vue = new DataView(tampon);
+  const texte = (offset, chaine) => {
+    for (let i = 0; i < chaine.length; i++) vue.setUint8(offset + i, chaine.charCodeAt(i));
+  };
+
+  texte(0, 'RIFF');
+  vue.setUint32(4, 36 + echantillons * 2, true);
+  texte(8, 'WAVEfmt ');
+  vue.setUint32(16, 16, true);
+  vue.setUint16(20, 1, true);        // PCM
+  vue.setUint16(22, 1, true);        // mono
+  vue.setUint32(24, taux, true);
+  vue.setUint32(28, taux * 2, true);
+  vue.setUint16(32, 2, true);
+  vue.setUint16(34, 16, true);
+  texte(36, 'data');
+  vue.setUint32(40, echantillons * 2, true);
+  // Le reste du tampon reste à zéro : c'est le silence.
+
+  return URL.createObjectURL(new Blob([tampon], { type: 'audio/wav' }));
+}
+
 export class Declencheurs extends EventTarget {
   constructor() {
     super();
     this.sources = new Set(['clavier']);
     this._gamepadBoucle = null;
     this._etatsBoutons = new Map();
+    this._piste = null;
   }
 
   _tirer(action, source) {
@@ -77,14 +112,37 @@ export class Declencheurs extends EventTarget {
     return true;
   }
 
-  annoncerMedia({ titre, actif }) {
+  /**
+   * Publie l'état média et maintient la session ouverte pendant la visite.
+   * C'est ce qui fait remonter les commandes sur l'écran de verrouillage.
+   */
+  annoncerMedia({ titre, actif, discret = false }) {
     if (!('mediaSession' in navigator)) return;
+
     navigator.mediaSession.metadata = new MediaMetadata({
-      title: titre,
-      artist: 'NOIRA — visite en cours',
-      album: 'Enregistrement terrain'
+      // En discrétion, l'écran verrouillé n'affiche rien d'identifiable.
+      title: discret ? 'Enregistrement' : titre,
+      artist: discret ? '' : 'Plodo — visite en cours',
+      album: discret ? '' : 'Enregistrement terrain'
     });
     navigator.mediaSession.playbackState = actif ? 'playing' : 'paused';
+
+    if (actif) {
+      if (!this._piste) {
+        this._piste = new Audio(pisteMuette());
+        this._piste.loop = true;
+      }
+      // Refusé si l'utilisateur n'a encore rien cliqué : sans geste, pas de
+      // lecture, donc pas de commandes sur l'écran verrouillé. Ce n'est pas
+      // bloquant, seulement moins confortable.
+      this._piste.play().catch(() => {
+        this.dispatchEvent(new CustomEvent('probleme', {
+          detail: { message: 'Les commandes sur écran verrouillé ne sont pas disponibles ici.' }
+        }));
+      });
+    } else {
+      this._piste?.pause();
+    }
   }
 
   /** Manettes, pédales et télécommandes en mode gamepad. */

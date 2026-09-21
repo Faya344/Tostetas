@@ -6,7 +6,7 @@
  * survivre à l'outil.
  *
  *   data/visites/<id>/visite.json      métadonnées + points clés
- *   data/visites/<id>/audio.webm       la copie du vocal, telle qu'enregistrée
+ *   data/visites/<id>/audio.<ext>      la copie du vocal, telle qu'enregistrée
  *   data/visites/<id>/transcript.json  segments horodatés
  *   data/visites/<id>/synthese.json    sortie structurée de Claude
  */
@@ -80,12 +80,47 @@ export async function loadVisite(id) {
     readJson(path.join(dir, 'transcript.json'), null),
     readJson(path.join(dir, 'synthese.json'), null)
   ]);
+  const fichier = await trouverAudio(id);
   let audio = null;
-  try {
-    const stat = await fs.stat(path.join(dir, 'audio.webm'));
-    audio = { url: `/api/visites/${id}/audio`, octets: stat.size };
-  } catch { /* pas d'audio : visite importée ou notes seules */ }
+  if (fichier) {
+    const stat = await fs.stat(fichier);
+    audio = { url: `/api/visites/${id}/audio`, octets: stat.size, format: path.extname(fichier).slice(1) };
+  }
   return { ...meta, transcript, synthese, audio };
+}
+
+/**
+ * Conteneurs acceptés. Le navigateur envoie du WebM/Opus, l'application Android
+ * du MP4/AAC : on range le fichier sous son vrai nom plutôt que de mentir sur
+ * l'extension, et on le retrouve ici.
+ */
+export const FORMATS_AUDIO = {
+  'audio/webm': 'webm',
+  'audio/ogg': 'ogg',
+  'audio/mp4': 'm4a',
+  'audio/m4a': 'm4a',
+  'audio/aac': 'm4a',
+  'audio/mpeg': 'mp3',
+  'audio/wav': 'wav',
+  'audio/x-wav': 'wav'
+};
+
+export const TYPES_AUDIO = {
+  webm: 'audio/webm', ogg: 'audio/ogg', m4a: 'audio/mp4',
+  mp3: 'audio/mpeg', wav: 'audio/wav'
+};
+
+/** @returns {Promise<string|null>} chemin du fichier audio, s'il y en a un. */
+export async function trouverAudio(id) {
+  const dir = visiteDir(id);
+  for (const ext of Object.keys(TYPES_AUDIO)) {
+    const fichier = path.join(dir, `audio.${ext}`);
+    try {
+      await fs.access(fichier);
+      return fichier;
+    } catch { /* format suivant */ }
+  }
+  return null;
 }
 
 export async function saveVisite(meta) {

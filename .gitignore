@@ -4,3 +4,10 @@ data/*
 *.log
 .DS_Store
 .env
+
+# Android
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+*.apk

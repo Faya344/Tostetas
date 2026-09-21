@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>NOIRA — Carnet de visites</title>
+<title>Plodo — Carnet de visites</title>
 <meta name="description" content="Enregistrez vos visites techniques, laissez la synthèse s'écrire toute seule.">
 <meta name="theme-color" content="#050509">
 <link rel="manifest" href="/manifest.webmanifest">
@@ -52,7 +52,7 @@
         </svg>
       </span>
       <div>
-        <h1 class="marque__nom">NOIRA</h1>
+        <h1 class="marque__nom">Plodo</h1>
         <div class="marque__sous">Quartz galaxie noir</div>
       </div>
     </div>
@@ -125,6 +125,7 @@
 
           <div class="rang" style="justify-content:center">
             <button class="bouton bouton--fantome" id="btn-pause" disabled>Pause</button>
+            <button class="bouton bouton--fantome" id="btn-veille" disabled>Mode discrétion</button>
             <span class="sonde" id="sonde-declencheurs"><span class="sonde__point"></span><span>Clavier</span></span>
           </div>
         </div>
@@ -276,6 +277,17 @@
     </section>
 
   </main>
+</div>
+
+<!-- ============================================================= veille -->
+<div class="veille" id="veille" hidden>
+  <div class="veille__etat"><span class="etat-rec__point"></span> Enregistrement</div>
+  <div class="veille__chrono" id="veille-chrono">00:00</div>
+  <div class="veille__clefs" id="veille-clefs">0 point clé</div>
+  <button class="veille__cible" id="veille-cible" aria-label="Marquer un point clé">
+    <span>Appuyez n'importe où<br>pour marquer un point clé</span>
+  </button>
+  <button class="bouton bouton--fantome veille__sortie" id="veille-sortie">Quitter la veille</button>
 </div>
 
 <div class="toasts" id="toasts" role="status" aria-live="polite"></div>

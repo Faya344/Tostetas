@@ -1,6 +1,6 @@
 # Matériel
 
-Rien n'est obligatoire. NOIRA marche avec un téléphone et rien d'autre. Ce
+Rien n'est obligatoire. Plodo marche avec un téléphone et rien d'autre. Ce
 document dit ce qu'on gagne à ajouter quelque chose, et ce qu'on ne gagne pas.
 
 ## Le bouton « point clé »
@@ -13,13 +13,23 @@ personne en face.
 
 | Moyen | Point clé | Démarrer / arrêter | Écran éteint |
 |---|---|---|---|
-| Clavier | `K`, `Entrée`, `→`, `↓` | `Espace`, `←`, `↑` | — |
+| Notification (APK) | bouton **Point clé** | bouton **Arrêter** | oui |
+| Tuile des réglages rapides (APK) | un appui | — | oui |
 | Bouton du casque filaire | piste suivante | lecture/pause | oui |
 | Écouteurs Bluetooth | double appui (selon le modèle) | appui simple | oui |
+| Clavier (navigateur) | `K`, `Entrée`, `→`, `↓` | `Espace`, `←`, `↑` | — |
 
-Le chemin « casque » passe par l'API MediaSession : le système route les touches
-média vers l'onglet tant qu'un média est déclaré actif, ce que NOIRA fait
-pendant l'enregistrement.
+Les deux premiers chemins n'existent que dans l'application Android, et ce sont
+les meilleurs : rien à appairer, rien à charger, rien à perdre. Voir
+[ANDROID.md](ANDROID.md).
+
+Le chemin « casque » passe par MediaSession : le système route les touches média
+vers l'application tant qu'un média est déclaré actif, ce que Plodo fait pendant
+l'enregistrement — y compris écran éteint.
+
+L'accessoire n'est donc plus indispensable. Ce qui suit reste utile si vous
+préférez un vrai bouton sous le doigt, ou si vous travaillez depuis le
+navigateur.
 
 ### Ce qui vaut quinze euros
 
@@ -46,7 +56,7 @@ photo bluetooth ». Les critères qui comptent :
 | Manette Bluetooth | reconnue par l'API Gamepad, boutons nombreux | encombrante en poche |
 
 Un boîtier HID non reconnu peut être appairé explicitement depuis
-**Réglages → Appairer un boîtier HID**. NOIRA traite alors tout rapport entrant
+**Réglages → Appairer un boîtier HID**. Plodo traite alors tout rapport entrant
 non nul comme un appui : on ne connaît pas le protocole du boîtier, mais
 « quelque chose a changé » suffit pour un clicker.
 
@@ -66,21 +76,23 @@ gros : Whisper reconstruit mal ce qu'il n'a pas entendu.
 
 ## Le téléphone
 
-La transcription Whisper tourne dans le navigateur. Sur un téléphone récent avec
-WebGPU, le modèle « Rapide » traite une heure d'enregistrement en quelques
-minutes. Sur une machine plus ancienne, le repli WASM fonctionne mais demande de
-la patience.
+Avec l'APK, le téléphone ne fait que capturer : la transcription et la synthèse
+attendent le poste. C'est ce qui rend la batterie tranquille — c'est le calcul
+qui chauffe un téléphone, pas un micro ouvert.
 
-Deux façons de contourner :
-
-1. Enregistrer sur le téléphone, transcrire sur l'ordinateur — les fichiers sont
-   dans `data/`, il suffit de les y copier.
-2. Choisir le moteur « Dictée du navigateur » en direct : moins précis, mais
-   instantané et sans calcul.
+Depuis le navigateur, en revanche, Whisper tourne sur place. Sur un téléphone
+récent avec WebGPU, le modèle « Rapide » traite une heure d'enregistrement en
+quelques minutes ; sur une machine plus ancienne, le repli WASM fonctionne mais
+demande de la patience. Le moteur « Dictée du navigateur » reste l'option
+instantanée, moins précise et sans calcul.
 
 ## Autonomie
 
-Un enregistrement d'une heure pèse environ 30 Mo en Opus à 64 kbit/s et consomme
-peu. C'est la transcription qui chauffe le téléphone, pas la capture. Si la
-batterie est un sujet, enregistrez sur le terrain et transcrivez au retour :
-NOIRA sépare déjà les deux étapes.
+Un enregistrement d'une heure pèse environ 15 Mo depuis l'APK (AAC 16 kHz) ou
+30 Mo depuis le navigateur (Opus 64 kbit/s), et consomme peu dans les deux cas.
+
+Un point compte plus que le reste : **désactivez l'optimisation de batterie**
+pour Plodo (Réglages → Applications → Plodo → Batterie → Sans restriction).
+Certains constructeurs tuent les services en arrière-plan bien plus vite que
+l'Android de référence, et c'est la seule cause sérieuse d'enregistrement
+interrompu.

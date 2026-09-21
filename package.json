@@ -1,9 +1,9 @@
 {
-  "name": "noira",
+  "name": "plodo",
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "NOIRA — carnet de visites techniques piloté par la voix. Local-first, zéro token API.",
+  "description": "Plodo — carnet de visites techniques piloté par la voix. Local-first, zéro token API.",
   "engines": { "node": ">=20" },
   "scripts": {
     "start": "node server/index.mjs",

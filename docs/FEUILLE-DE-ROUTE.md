@@ -1,8 +1,12 @@
 # Feuille de route
 
-Ce que NOIRA ne fait pas encore, classé par rapport valeur / effort. Les
+Ce que Plodo ne fait pas encore, classé par rapport valeur / effort. Les
 comparaisons portent sur Plaud (Note, Note Pro, NotePin) et Boya OS, dont les
 fonctions publiées ont servi de repère.
+
+*Fait depuis la première version : l'application Android et le mode discrétion
+(capture écran verrouillé, point clé depuis la notification, la tuile des
+réglages rapides ou le casque). Voir [ANDROID.md](ANDROID.md).*
 
 ---
 
@@ -133,16 +137,18 @@ libellé.
 | Import d'enregistrements existants | Reprendre l'historique déjà accumulé ailleurs. |
 | Signature du compte rendu sur place | Faire valider les réserves avant de quitter le site. |
 | Rappels d'échéance | Les actions ont des dates ; personne ne les relit. |
-| Raccourci système Android / iOS | Démarrer sans déverrouiller. |
+| Raccourci système Android | Une tuile « Démarrer une visite », en plus de celle du point clé. |
+| Envoi automatique au retour | Pousser les visites en attente dès que le téléphone retrouve le Wi-Fi du bureau. |
+| Version iOS | Le mode discrétion y est plus contraint : iOS coupe la capture en arrière-plan plus tôt qu'Android. |
 
 ---
 
 ## Ce qui a été écarté
 
-**Un compagnon matériel.** Plaud et Boya vendent un boîtier. L'intérêt réel est
-le bouton et le micro — tous deux remplaçables pour quinze à trente euros, comme
-détaillé dans [MATERIEL.md](MATERIEL.md). Fabriquer du matériel contredirait le
-principe de départ.
+**Un compagnon matériel.** Plaud et Boya vendent un boîtier à 170 €. L'intérêt
+réel est le bouton et le micro : depuis que l'application Android existe, le
+bouton est dans la notification et le micro est celui du téléphone. Il ne reste
+rien à fabriquer.
 
 **Le cloud.** Synchroniser entre appareils implique un serveur, donc un coût
 récurrent, donc un abonnement. La contrainte posée était l'inverse. Un dossier
@@ -150,5 +156,5 @@ récurrent, donc un abonnement. La contrainte posée était l'inverse. Un dossie
 réseau) résout le même besoin sans rien ajouter.
 
 **Les quotas.** Boya offre 320 minutes par mois en gratuit, puis 17,99 € par
-mois. NOIRA n'a pas de compteur parce qu'il n'a rien à compter : la transcription
+mois. Plodo n'a pas de compteur parce qu'il n'a rien à compter : la transcription
 tourne chez vous.

@@ -1,5 +1,5 @@
 /**
- * NOIRA — orchestration de l'interface.
+ * Plodo — orchestration de l'interface.
  *
  * Le fil conducteur : appuyer sur un seul bouton doit suffire. Tout ce qui
  * suit — sauvegarde, transcription, synthèse, indexation — s'enchaîne sans
@@ -24,9 +24,9 @@ const reglages = {
   moteur: 'les-deux',
   modele: MODELES.rapide.id,
   langue: 'fr',
-  ...JSON.parse(localStorage.getItem('noira:reglages') || '{}')
+  ...JSON.parse(localStorage.getItem('plodo:reglages') || '{}')
 };
-const sauverReglages = () => localStorage.setItem('noira:reglages', JSON.stringify(reglages));
+const sauverReglages = () => localStorage.setItem('plodo:reglages', JSON.stringify(reglages));
 
 const etat = {
   vue: 'studio',
@@ -36,6 +36,8 @@ const etat = {
   claude: { ok: false },
   rag: null
 };
+
+let veille = false;
 
 const enregistreur = new Enregistreur();
 const declencheurs = new Declencheurs();
@@ -106,6 +108,7 @@ function majEtatRec() {
   $('#btn-rec').setAttribute('aria-label', e === 'repos' ? "Démarrer l'enregistrement" : "Arrêter l'enregistrement");
   $('#btn-clef').disabled = e === 'repos';
   $('#btn-pause').disabled = e === 'repos';
+  $('#btn-veille').disabled = e === 'repos';
   $('#btn-pause').textContent = e === 'pause' ? 'Reprendre' : 'Pause';
   $('#ch-titre').disabled = $('#ch-site').disabled = e !== 'repos';
 }
@@ -138,7 +141,7 @@ async function demarrer() {
     etat.visiteId = visite.id;
 
     await enregistreur.demarrer(visite.id);
-    declencheurs.annoncerMedia({ titre: visite.titre, actif: true });
+    declencheurs.annoncerMedia({ titre: visite.titre, actif: true, discret: veille });
 
     if (reglages.moteur === 'dictee' || reglages.moteur === 'les-deux') {
       lancerDictee();
@@ -197,7 +200,8 @@ async function arreter() {
   dictee = null;
 
   const resultat = await enregistreur.arreter();
-  declencheurs.annoncerMedia({ titre: 'NOIRA', actif: false });
+  declencheurs.annoncerMedia({ titre: 'Plodo', actif: false });
+  if (veille) basculerVeille(false);
   majEtatRec();
   if (!resultat) return;
 
@@ -694,9 +698,45 @@ function signalerPointClef(source = 'bouton') {
   if (marker) {
     // Un retour physique : l'écran est peut-être dans la poche.
     navigator.vibrate?.([18, 40, 18]);
-    toast(`Repère posé à ${viz.hms(marker.t)}${source !== 'bouton' ? ` (${source})` : ''}.`);
+    majVeille();
+    // En veille, la vibration est le seul retour : un bandeau rallumerait l'écran.
+    if (!veille) toast(`Repère posé à ${viz.hms(marker.t)}${source !== 'bouton' ? ` (${source})` : ''}.`);
   }
 }
+
+/**
+ * Mode discrétion.
+ *
+ * L'écran passe au noir, l'horodatage reste lisible à bout de bras, et toute la
+ * surface devient le bouton « point clé ». On ne demande volontairement aucun
+ * verrou d'écran : le but est justement que l'écran s'éteigne tout seul.
+ *
+ * Limite à connaître : un navigateur n'est pas maître de son sort. Android
+ * suspend un onglet dont l'écran est éteint, et la capture finit par caler —
+ * c'est le système qui décide, pas la page. Pour une visite entière téléphone
+ * en poche, c'est l'application Android qui tient la promesse, parce qu'elle
+ * dispose d'un service au premier plan que le navigateur n'a pas.
+ */
+function basculerVeille(actif) {
+  veille = actif;
+  $('#veille').hidden = !actif;
+  $('#btn-veille').textContent = actif ? 'Quitter la veille' : 'Mode discrétion';
+  if (enregistreur.etat !== 'repos') {
+    declencheurs.annoncerMedia({ titre: etat.visite?.titre ?? 'Plodo', actif: true, discret: actif });
+  }
+  if (actif) majVeille();
+}
+
+function majVeille() {
+  if (!veille) return;
+  const n = enregistreur.markers.length;
+  $('#veille-chrono').textContent = viz.hms(enregistreur.position);
+  $('#veille-clefs').textContent = `${n} point${n > 1 ? 's' : ''} clé${n > 1 ? 's' : ''}`;
+}
+
+$('#btn-veille').addEventListener('click', () => basculerVeille(!veille));
+$('#veille-sortie').addEventListener('click', () => basculerVeille(false));
+$('#veille-cible').addEventListener('click', () => signalerPointClef('veille'));
 
 async function basculer() {
   if (enregistreur.etat === 'repos') await demarrer();
@@ -724,8 +764,9 @@ enregistreur.addEventListener('probleme', ({ detail }) => toast(detail.message, 
 enregistreur.addEventListener('niveau', ({ detail }) => {
   historique.push(detail.niveau);
   historique.shift();
-  dessinerOnde();
+  if (!veille) dessinerOnde();   // inutile de dessiner ce que personne ne regarde
   majChrono(detail.position);
+  majVeille();
 });
 
 // Fermer l'onglet en plein enregistrement doit coûter un avertissement.
