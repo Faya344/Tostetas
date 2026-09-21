@@ -1,0 +1,27 @@
+name: ai_aggregator
+description: >
+  Pipeline audio → résumé pour Plodo, uniquement sur des paliers gratuits.
+  Voie courte : Gemini transcrit et résume en un seul appel multimodal.
+  Voie de secours, à deux étages indépendants : Groq Whisper puis Whisper
+  local pour la transcription ; Groq (modèle de chat gratuit) puis Cohere
+  pour le résumé.
+version: 0.1.0
+publish_to: 'none'
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+  flutter: '>=3.19.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  http: ^1.2.0
+  # Vérifiez la dernière version publiée sur pub.dev avant `flutter pub get` :
+  # ce paquet évolue vite, et la signature de transcribe() a déjà changé
+  # d'une version majeure à l'autre.
+  whisper_flutter_plus: ^1.1.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
