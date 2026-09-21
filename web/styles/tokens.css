@@ -1,0 +1,104 @@
+/* ============================================================================
+   NOIRA — Quartz Galaxie Noir
+   Jetons de design. Une seule source pour les couleurs, l'espace et le rythme.
+
+   Deux familles de couleurs, volontairement séparées :
+   - la PARURE (quartz, améthyste, nébuleuse) habille l'interface ;
+   - la SÉRIE (--serie-1…8) habille les données, et rien d'autre.
+   Mélanger les deux, c'est laisser une couleur de marque signifier une valeur.
+   La palette de série est validée pour daltonisme et contraste sur --fond-abysse.
+   ========================================================================= */
+
+:root {
+  color-scheme: dark;
+
+  /* --- Fonds : du vide interstellaire à la facette éclairée ---------------- */
+  --fond-vide:    #050509;
+  --fond-abysse:  #0a0a12;  /* surface des graphiques (palette validée dessus) */
+  --fond-panneau: #101019;
+  --fond-relief:  #16161f;
+  --fond-creux:   #0d0d15;
+
+  /* --- Quartz : la parure ------------------------------------------------- */
+  --quartz-100: #e6e1ff;
+  --quartz-300: #b9adfb;
+  --quartz-500: #8b7cf0;   /* accent principal */
+  --quartz-600: #6d5ed6;
+  --quartz-900: #241d4d;
+  --rose-quartz: #e9a0c0;  /* accent secondaire, parcimonieux */
+  --nebuleuse:   #5fd4c4;  /* accent d'état vivant (enregistrement, sync) */
+
+  /* --- Encre -------------------------------------------------------------- */
+  --encre-1: #f3f2fb;
+  --encre-2: #a9a7c0;
+  --encre-3: #71708a;
+  --encre-4: #4a4960;
+
+  /* --- Traits et voiles --------------------------------------------------- */
+  --trait:        rgba(255, 255, 255, 0.07);
+  --trait-fort:   rgba(255, 255, 255, 0.13);
+  --trait-quartz: rgba(139, 124, 240, 0.35);
+  --facette:      rgba(255, 255, 255, 0.05);  /* lisere haut des panneaux */
+  --voile:        rgba(5, 5, 9, 0.72);
+
+  /* --- Série de données (validée : bande de clarté, chroma, CVD, contraste) */
+  --serie-1: #3987e5;
+  --serie-2: #d95926;
+  --serie-3: #199e70;
+  --serie-4: #c98500;
+  --serie-5: #d55181;
+  --serie-6: #008300;
+  --serie-7: #9085e9;
+  --serie-8: #e66767;
+
+  /* --- États (jamais réutilisés comme série ; toujours avec un libellé) ---- */
+  --etat-bon:      #0ca30c;
+  --etat-attention:#fab219;
+  --etat-serieux:  #ec835a;
+  --etat-critique: #d03b3b;
+
+  /* --- Grille des graphiques ---------------------------------------------- */
+  --grille: rgba(255, 255, 255, 0.06);
+  --axe:    rgba(255, 255, 255, 0.14);
+
+  /* --- Typographie -------------------------------------------------------- */
+  --police: "Inter", "SF Pro Text", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --police-mono: "SF Mono", ui-monospace, "JetBrains Mono", "Cascadia Code", Menlo, monospace;
+
+  --t-xs: 0.6875rem;
+  --t-sm: 0.8125rem;
+  --t-md: 0.9375rem;
+  --t-lg: 1.125rem;
+  --t-xl: 1.5rem;
+  --t-2xl: 2.25rem;
+  --t-hero: clamp(2.5rem, 6vw, 3.75rem);
+
+  /* --- Rythme ------------------------------------------------------------- */
+  --e1: 4px;  --e2: 8px;  --e3: 12px; --e4: 16px;
+  --e5: 24px; --e6: 32px; --e7: 48px; --e8: 64px;
+
+  --r-sm: 8px;
+  --r-md: 14px;
+  --r-lg: 20px;
+  --r-xl: 28px;
+  --r-rond: 999px;
+
+  /* --- Profondeur : une ombre noire + une lueur quartz, jamais plus ------- */
+  --ombre-1: 0 1px 2px rgba(0, 0, 0, 0.6);
+  --ombre-2: 0 8px 24px -8px rgba(0, 0, 0, 0.8);
+  --ombre-3: 0 24px 64px -16px rgba(0, 0, 0, 0.9);
+  --lueur-quartz: 0 0 0 1px var(--trait-quartz), 0 0 32px -8px rgba(139, 124, 240, 0.45);
+  --lueur-rec: 0 0 0 1px rgba(208, 59, 59, 0.5), 0 0 48px -8px rgba(208, 59, 59, 0.55);
+
+  --transition: 180ms cubic-bezier(0.2, 0.6, 0.3, 1);
+}
+
+/* Le thème est sombre par nature — mais on respecte qui demande moins d'effets. */
+@media (prefers-reduced-motion: reduce) {
+  :root { --transition: 1ms linear; }
+  *, *::before, *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+  }
+}

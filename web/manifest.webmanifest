@@ -1,0 +1,18 @@
+{
+  "name": "NOIRA — Carnet de visites",
+  "short_name": "NOIRA",
+  "description": "Enregistrez vos visites techniques, laissez la synthèse s'écrire.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#050509",
+  "theme_color": "#050509",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='112' fill='%23050509'/><path d='M256 96l112 160-112 160-112-160z' fill='none' stroke='%238b7cf0' stroke-width='22' stroke-linejoin='round'/><path d='M144 256h224M256 96v320' stroke='%238b7cf0' stroke-width='10' stroke-opacity='.55'/></svg>",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
